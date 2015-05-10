@@ -47,9 +47,11 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 	protected List<ParameterDefinition> parameters;
 	protected String variance = null;
 	protected String assignedLabelString = null;
+	//Is this project's overriding the other parent?
+	boolean isOverriding = false;
 	
 	@DataBoundConstructor
-	public ParameterizedProjectReference(String name, String variance, String assignedLabelString, 
+	public ParameterizedProjectReference(String name, String variance, String assignedLabelString, boolean isOverriding, 
 			List<ParameterDefinition> parameters) {
 		super(name);
 		InheritanceProject project = this.getProject();
@@ -72,6 +74,7 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 		
 		this.variance = variance;
 		this.assignedLabelString = assignedLabelString;
+		this.isOverriding = isOverriding;
 	}
 	
 	
@@ -97,6 +100,9 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 		}
 		return this.assignedLabelString;
 	
+	}
+	public boolean getIsOverriding(){
+		return this.isOverriding;
 	}
 	
 	// === DESCRIPTOR DEFINITION ===

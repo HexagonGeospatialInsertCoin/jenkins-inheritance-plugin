@@ -67,6 +67,14 @@ f.entry(field: "assignedLabelString", title: _("Label Expression")) {
 	)
 }
 
+f.entry(title: _("Is overriding ? ")){
+		f.checkbox(field: "isOverriding")
+		f.description(
+			"Is this reference overriding the other parent? "
+			+"If you are configuring existing compound you need to delete it and recreate for the change to take effect."
+		) 
+		
+}
 
 f.advanced(align: "left") {
 	f.block() {
