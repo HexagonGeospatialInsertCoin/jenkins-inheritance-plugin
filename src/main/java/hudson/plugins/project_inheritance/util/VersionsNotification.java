@@ -3,7 +3,6 @@ package hudson.plugins.project_inheritance.util;
 import hudson.plugins.project_inheritance.util.Messages;
 import hudson.plugins.project_inheritance.util.VersionedObjectStore.Version;
 
-import java.util.List;
 
 /**
  * A simple class that matches the current state of versioning to a set of
@@ -16,7 +15,7 @@ public class VersionsNotification {
 	private final boolean stablesAfter;
 	private final boolean isWarning;
 	private final String notificationMessage;
-	private final Version latestStable;
+
 	
 	private boolean highlightWarning = false;
 
@@ -29,7 +28,7 @@ public class VersionsNotification {
 		this.isStable = isStable;
 		this.stablesBefore = stablesBefore;
 		this.stablesAfter = stablesAfter;
-		this.latestStable = latestStableVersion;
+		
 		
 		StringBuffer msg = new StringBuffer();
 		

@@ -47,12 +47,33 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 	protected List<ParameterDefinition> parameters;
 	protected String variance = null;
 	protected String assignedLabelString = null;
-	//Is this project's overriding the other parent?
-	boolean isOverriding = false;
+	
+	public static class OverridingMap {
+		public final boolean parameterIsOverriding;
+		public final boolean buildWrapperIsOverriding;
+		public final boolean builderIsOverriding;
+		public final boolean publisherIsOverriding;
+		public final boolean miscIsOverriding;
+		
+		public OverridingMap(boolean... overriding) {
+			if (overriding.length != 5) {
+				throw new IllegalArgumentException("OverridingMap expected 5 values");
+			}
+			parameterIsOverriding = overriding[0];
+			buildWrapperIsOverriding = overriding[1];
+			builderIsOverriding = overriding[2];
+			publisherIsOverriding = overriding[3];
+			miscIsOverriding = overriding[4];
+		}
+	}
+	
+	//Is this project reference overriding the other parent?
+	private final OverridingMap overridingMap;
 	
 	@DataBoundConstructor
-	public ParameterizedProjectReference(String name, String variance, String assignedLabelString, boolean isOverriding, 
-			List<ParameterDefinition> parameters) {
+	public ParameterizedProjectReference(String name, String variance, String assignedLabelString,
+			List<ParameterDefinition> parameters, boolean parameterIsOverriding, boolean buildWrapperIsOverriding,
+			boolean builderIsOverriding, boolean publisherIsOverriding, boolean miscIsOverriding) {
 		super(name);
 		InheritanceProject project = this.getProject();
 		if (project != null && parameters != null) {
@@ -74,7 +95,8 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 		
 		this.variance = variance;
 		this.assignedLabelString = assignedLabelString;
-		this.isOverriding = isOverriding;
+		this.overridingMap  = new OverridingMap(parameterIsOverriding,  buildWrapperIsOverriding,
+				 builderIsOverriding,  publisherIsOverriding,  miscIsOverriding);
 	}
 	
 	
@@ -101,9 +123,33 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 		return this.assignedLabelString;
 	
 	}
-	public boolean getIsOverriding(){
-		return this.isOverriding;
+
+	public OverridingMap getOverridingMap(){
+		return this.overridingMap;
 	}
+	
+	// === GUI ACCESS METHODS ===
+	
+	public boolean getParameterIsOverriding() {
+		return this.overridingMap.parameterIsOverriding;
+	}
+	
+	public boolean getBuildWrapperIsOverriding() {
+		return this.overridingMap.buildWrapperIsOverriding;
+	}
+	
+	public boolean getBuilderIsOverriding() {
+		return this.overridingMap.builderIsOverriding;
+	}
+	
+	public boolean getPublisherIsOverriding() {
+		return this.overridingMap.publisherIsOverriding;
+	}
+	
+	public boolean getMiscIsOverriding() {
+		return this.overridingMap.miscIsOverriding;
+	}
+		
 	
 	// === DESCRIPTOR DEFINITION ===
 	

@@ -41,6 +41,7 @@ import hudson.model.listeners.ItemListener;
 import hudson.plugins.project_inheritance.projects.InheritanceProject;
 import hudson.plugins.project_inheritance.projects.references.AbstractProjectReference;
 import hudson.plugins.project_inheritance.projects.references.ParameterizedProjectReference;
+import hudson.plugins.project_inheritance.projects.references.ParameterizedProjectReference.OverridingMap;
 import hudson.plugins.project_inheritance.projects.references.ProjectReference;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
@@ -52,6 +53,7 @@ import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -68,7 +70,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
-import java.util.Collections;
 import javax.servlet.ServletException;
 
 import jenkins.model.Jenkins;
@@ -649,7 +650,7 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 		private final InheritanceProject[] parents;
 		private final String variance;
 		private final String assignedLabelString;
-		private final boolean isOverriding;
+		private final OverridingMap overridingMap;
 		private final Map<String, String> reportMap;
 		private final Authentication auth;
 		
@@ -674,7 +675,7 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 				InheritanceProject[] parents,
 				String variance,
 				String assignedLabelString,
-				boolean isOverriding, 
+				OverridingMap overridingMap, 
 				Map<String, String> reportMap,
 				Authentication auth) {
 			if (parents == null || parents.length <= 0) {
@@ -685,11 +686,48 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 			this.parents = parents;
 			this.variance = variance;
 			this.assignedLabelString = assignedLabelString;
-			this.isOverriding = isOverriding;
+			this.overridingMap = overridingMap;
 			this.reportMap = reportMap;
 			this.auth = auth;
 		}
-		
+		private boolean updateProject(InheritanceProject ip){
+			//Add the references generated above
+			//I guess this should rename the project?
+			boolean updated = false;
+			updated |= ip.setVarianceLabel(variance);
+			ip.setAssignedLabelString(assignedLabelString);
+			List<InheritanceProject> parentList = new ArrayList<InheritanceProject>();
+			for (InheritanceProject par : parents) {
+				if (par == null) { continue; }
+				parentList.add(par);
+			}
+			if (parentList.size() == 2){
+				updated |= ip.updateParentReference(
+						new ProjectReference(parentList.get(0).getName(),
+								this.overridingMap.parameterIsOverriding?-2:-1, 
+								this.overridingMap.buildWrapperIsOverriding?1:2,
+								this.overridingMap.builderIsOverriding?1:2, 
+								this.overridingMap.publisherIsOverriding?1:2, 
+								this.overridingMap.miscIsOverriding?1:2
+						)
+						
+				);
+				updated |= ip.updateParentReference(
+						new ProjectReference(parentList.get(1).getName(),
+								this.overridingMap.parameterIsOverriding?-1:-2, 
+								this.overridingMap.buildWrapperIsOverriding?2:1,
+								this.overridingMap.builderIsOverriding?2:1, 
+								this.overridingMap.publisherIsOverriding?2:1, 
+								this.overridingMap.miscIsOverriding?2:1
+						)
+						
+				);
+			}else if (parentList.size()==1){//i am not sure how this would be possible, but interface allows for it. Remove it eventually. 
+				updated |= ip.updateParentReference(new ProjectReference(parentList.get(0).getName(),-1));
+			}
+			
+			return updated;
+		}
 		@SuppressWarnings("unchecked")
 		public void run() {
 			ProjectCreationEngine pce = ProjectCreationEngine.instance;
@@ -701,8 +739,10 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 				if (ip == null) { continue; }
 				String pName = ip.getName();
 				String cName = ip.getCreationClass();
+				if (pName!=null){
+					parNames.add(pName);
+				}
 				if (pName == null || cName == null || cName.isEmpty()) { continue; }
-				parNames.add(pName);
 				classes.add(cName);
 			}
 			
@@ -752,61 +792,55 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 				if (auth != null) {
 					oldAuthContext = ACL.impersonate(this.auth);
 				}
-				//Check if the job to be generated already exists
-				if (itemMap.containsKey(pName)) {
-					reportMap.put(pName, "Job already exists");
-					return;
-				}
 				
 				//Check if we've tried to create such a project already
 				if (reportMap.containsKey(pName)) { return; }
-				
-				//Make sure that the IP Descriptor knows that we want to create
-				//the job as transient
-				InheritanceProject.DESCRIPTOR.addProjectToBeCreatedTransient(pName);
+				boolean updating = false;
+				//Check if the job to be generated already exists
+				if (itemMap.containsKey(pName)) {
+					//reportMap.put(pName, "Job already exists");
+					//return;
+					updating = true;
+				}
 				
 				TopLevelItem item = null;
 				InheritanceProject ip = null;
-			
-				//Use that constructor to create a suitable transient job
-				item = Jenkins.getInstance().createProject(
-						InheritanceProject.DESCRIPTOR, pName 
-				);
-				if (item == null || !(item instanceof InheritanceProject)) {
-					//Invalid job created; we must kill it
-					item.delete();
-					reportMap.put(
-							pName, "Failed, wrong project type generated"
+				if (!updating){
+					//Make sure that the IP Descriptor knows that we want to create
+					//the job as transient
+					InheritanceProject.DESCRIPTOR.addProjectToBeCreatedTransient(pName);
+				
+					//Use that constructor to create a suitable transient job
+					item = Jenkins.getInstance().createProject(
+							InheritanceProject.DESCRIPTOR, pName 
 					);
-					return;
+					if (item == null || !(item instanceof InheritanceProject)) {
+						//Invalid job created; we must kill it
+						item.delete();
+						reportMap.put(
+								pName, "Failed, wrong project type generated"
+						);
+						return;
+					}
+				}else{
+					item = InheritanceProject.getProjectByName( pName );
+					if (item == null){
+						reportMap.put(
+								pName, "Apparently project existed but cannot be resolved by name"
+						);
+						return;
+					}
+					if (!(item instanceof InheritanceProject)) {
+						reportMap.put(
+								pName, "Project by that name exist but it is not Inheritance type"
+						);
+						return;
+					}
+					
 				}
 				ip = (InheritanceProject) item;
-				
-				
-				//Add the references generated above
-				int priority = 0;
-				
-				List<InheritanceProject> parentList = Arrays.asList(this.parents);
-				if (this.isOverriding){
-					Collections.reverse(parentList);
-				}
-				for (InheritanceProject par : parentList) {
-					if (par == null) { continue; }
-					ip.addParentReference(
-							new ProjectReference(par.getName(), --priority)
-					);
-				}
-				
-				//Set the variance, if any
-				if (variance != null && !variance.isEmpty()) {
-					ip.setVarianceLabel(variance);
-				}
-				
-				//Set the assigned label string, if any. 
-				if (assignedLabelString!=null && !assignedLabelString.isEmpty()){
-					ip.setAssignedLabelString(assignedLabelString);					
-				}
-
+				//We have got the project. 
+				boolean updated = updateProject(ip);
 				//Check whether the newly created job is sane and buildable
 				boolean isSane = false;
 				String insanityMessage = null;
@@ -827,14 +861,24 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 				}
 				
 				//Load the additional properties
-				if (ip != null) {
-					ip.onLoad(ip.getParent(), ip.getName());
+				if (!updating){
+						if (ip != null) {
+							ip.onLoad(ip.getParent(), ip.getName());
+						}
 				}
 				
 				if (!isSane) {
 					reportMap.put(pName, insanityMessage);
 				} else {
-					reportMap.put(pName, "Success");
+					if (!updating){
+						reportMap.put(pName, "Success");
+					}else{
+						if (updated){
+							reportMap.put(pName, "Updated existing project.");
+						}else{
+							reportMap.put(pName, "Project already up to date.");
+						}
+					}
 				}
 			} catch (IllegalArgumentException ex) {
 				//The name already exist
@@ -906,8 +950,8 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 						? ((ParameterizedProjectReference)ref).getAssignedLabelString()
 						: null;
 				
-				boolean isOverriding = (ref instanceof ParameterizedProjectReference)
-						? ((ParameterizedProjectReference)ref).getIsOverriding()
+				OverridingMap overridingMap = (ref instanceof ParameterizedProjectReference)
+						? ((ParameterizedProjectReference)ref).getOverridingMap()
 						: null;
 						
 				//Creating the mates generated by that pairing
@@ -919,7 +963,7 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 				//DO NOTE: It will check if the creation is valid at all, and
 				//         refuse to create something if it's not valid.
 				ProjectDerivationRunner pdr = new ProjectDerivationRunner(
-						parents, variance, assignedLabelString, isOverriding, reportMap, ACL.SYSTEM
+						parents, variance, assignedLabelString, overridingMap, reportMap, ACL.SYSTEM
 				);
 				futures.add(exec.submit(pdr, true));
 			}

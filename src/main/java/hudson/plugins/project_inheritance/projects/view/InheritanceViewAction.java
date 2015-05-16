@@ -133,7 +133,7 @@ public class InheritanceViewAction implements Action, Describable<InheritanceVie
 	public String getDisplayName() {
 		InheritanceProject ip = this.getProject();
 		if (this.isApplicableFor(ip)) {
-			return "View/Download full build flow";
+			return "View full build flow";
 		} else {
 			return null;
 		}

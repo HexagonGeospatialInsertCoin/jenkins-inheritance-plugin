@@ -75,8 +75,6 @@ public class ProjectReference extends SimpleProjectReference {
 	}
 	
 	
-	
-	
 	// === GUI ACCESS METHODS ===
 	
 	public int getParameterPriority() {
@@ -173,6 +171,34 @@ public class ProjectReference extends SimpleProjectReference {
 		}
 	}
 	
+	public static class ProjectReferenceEqualityComparer {
+		public static boolean equals(ProjectReference proj1,  AbstractProjectReference aProj2){
+			if (proj1 == aProj2) return true;
+			if (!(aProj2 instanceof ProjectReference)){
+				return false;
+			}
+			ProjectReference proj2  =  (ProjectReference)aProj2;
+			if (proj1.getParameterPriority() != proj2.getParameterPriority()){
+				return false;
+			}
+			if (proj1.getBuildWrapperPriority() != proj2.getBuildWrapperPriority()){
+				return false;
+			}
+			if (proj1.getMiscPriority() != proj2.getMiscPriority()){
+				return false;
+			}
+			if (proj1.getPublisherPriority()!= proj2.getPublisherPriority()){
+				return false;
+			}
+			if (proj1.getBuilderPriority() != proj2.getBuilderPriority()){
+				return false;
+			}
+			if (!proj1.getName().equals(proj2.getName())){
+				return false;
+			}
+			return true;
+		}
+	}
 	
 	
 	// === DESCRIPTOR MEMBERS AND CLASSES ===

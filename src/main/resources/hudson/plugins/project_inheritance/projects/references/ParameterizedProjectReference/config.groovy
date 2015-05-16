@@ -67,17 +67,43 @@ f.entry(field: "assignedLabelString", title: _("Label Expression")) {
 	)
 }
 
-f.entry(title: _("Is overriding ? ")){
-		f.checkbox(field: "isOverriding")
-		f.description(
-			"Is this reference overriding the other parent? "
-			+"If you are configuring existing compound you need to delete it and recreate for the change to take effect."
-		) 
-		
-}
 
 f.advanced(align: "left") {
 	f.block() {
+  		f.nested() {
+			div(style: "font-weight:bold; border-bottom: 1px solid black; margin-bottom:0.2em; margin-top:0.4em",
+					_("Precedence Configuration")
+			)
+		}
+		f.nested() {
+				f.entry(
+					
+					title: _("Parameter Order")
+					){
+					f.booleanRadio(field: "parameterIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+
+				}
+				f.entry(
+						title: _("Pre-Build Step Order"),
+						) {
+					f.booleanRadio(field: "buildWrapperIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+				}
+				f.entry(
+						title: _("Build Step Order"),
+						) {
+					f.booleanRadio(field: "builderIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+				}
+				f.entry(
+						title: _("Post-Build Step Order"),
+						) {
+					f.booleanRadio(field: "publisherIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+				}
+				f.entry(
+						title: _("Misc. Property Order"),
+						) {
+					f.booleanRadio(field: "miscIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+				}
+		}
 		f.nested() {
 			div(style: "font-weight:bold; border-bottom: 1px solid black; margin-bottom:0.2em; margin-top:0.4em",
 					_("Additional Parameters")

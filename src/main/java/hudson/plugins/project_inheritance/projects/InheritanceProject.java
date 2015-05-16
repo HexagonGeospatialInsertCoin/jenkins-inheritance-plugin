@@ -73,6 +73,7 @@ import hudson.plugins.project_inheritance.projects.references.ParameterizedProje
 import hudson.plugins.project_inheritance.projects.references.ProjectReference;
 import hudson.plugins.project_inheritance.projects.references.ProjectReference.PrioComparator;
 import hudson.plugins.project_inheritance.projects.references.ProjectReference.PrioComparator.SELECTOR;
+import hudson.plugins.project_inheritance.projects.references.ProjectReference.ProjectReferenceEqualityComparer;
 import hudson.plugins.project_inheritance.projects.view.InheritanceViewAction;
 import hudson.plugins.project_inheritance.util.Helpers;
 import hudson.plugins.project_inheritance.util.Reflection;
@@ -881,7 +882,34 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 		//And invalidating all caches
 		clearBuffers(this);
 	}
-	
+	/**
+	 * Update parent reference if necessary
+	 * 
+	 * @param ref the reference to be updated.
+	 */ 
+	public boolean updateParentReference(ProjectReference ref){
+		if (ref == null ){
+			return false;
+		}
+		AbstractProjectReference foundRef = null;
+		for (AbstractProjectReference ourRef : this.getParentReferences()) {
+			if (ourRef.getName().equals(ref.getName())) {
+				foundRef = ourRef;
+				break;
+			}
+		}
+		if (foundRef == null){
+			addParentReference(ref, false);
+			return true;
+		}
+		if (ProjectReferenceEqualityComparer.equals(ref, foundRef)){
+			return false;
+		}
+		removeParentReference(ref.getName());
+		addParentReference(ref);
+		return true;
+		
+	}
 	/**
 	 * Wrapper around
 	 * {@link #addParentReference(AbstractProjectReference, boolean)} with
@@ -913,20 +941,43 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 		}
 		return false;
 	}
-	
-	public void setVarianceLabel(String variance) {
+	//returns information if the value was actually changed. 
+	public boolean setVarianceLabel(String variance) {
 		if (this.isTransient) {
+			if (variance !=null){
+				if (variance.equals(this.variance)){
+					return false;
+				}
+			}else{
+				if (this.variance==null){
+					return false;
+				}
+			}
 			this.variance =
 					(variance == null || variance.isEmpty())
 					? null : variance;
+			return true;
 		}
+		return false;
 	}
-	public void setAssignedLabelString(String assignedLabelString) {
+	//returns information if the value was actually changed. 
+	public boolean setAssignedLabelString(String assignedLabelString) {
 		if (this.isTransient) {
+			if (assignedLabelString != null){
+				if (assignedLabelString.equals(this.assignedLabelString)){
+					return false;
+				}
+			}else{
+				if (this.assignedLabelString == null){
+					return false;
+				}
+			}
 			this.assignedLabelString =
 					(assignedLabelString == null || assignedLabelString.isEmpty())
 					? null : assignedLabelString;
+			return true;
 		}
+		return false;
 	}
 	
 	public void setCreationClass(String creationClass) {
@@ -939,6 +990,7 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 			}
 		}
 	}
+	
 	
 	/**
 	 * This method is called after a save to restructure the dependency graph.
