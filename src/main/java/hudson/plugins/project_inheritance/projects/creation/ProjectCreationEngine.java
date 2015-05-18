@@ -708,7 +708,8 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 								this.overridingMap.buildWrapperIsOverriding?1:2,
 								this.overridingMap.builderIsOverriding?1:2, 
 								this.overridingMap.publisherIsOverriding?1:2, 
-								this.overridingMap.miscIsOverriding?1:2
+								this.overridingMap.miscIsOverriding?1:2,
+								this.overridingMap.propertiesIsOverriding?1:2
 						)
 						
 				);
@@ -718,7 +719,8 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 								this.overridingMap.buildWrapperIsOverriding?2:1,
 								this.overridingMap.builderIsOverriding?2:1, 
 								this.overridingMap.publisherIsOverriding?2:1, 
-								this.overridingMap.miscIsOverriding?2:1
+								this.overridingMap.miscIsOverriding?2:1,
+								this.overridingMap.propertiesIsOverriding?2:1
 						)
 						
 				);

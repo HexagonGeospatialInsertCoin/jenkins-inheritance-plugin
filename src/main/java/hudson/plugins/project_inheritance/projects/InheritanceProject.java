@@ -3103,7 +3103,7 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 		
 		InheritanceGovernor<List<JobProperty<? super InheritanceProject>>> gov =
 				new InheritanceGovernor<List<JobProperty<? super InheritanceProject>>>(
-						"properties", SELECTOR.PARAMETER, this) {
+						"properties", SELECTOR.PROPERTIES, this) {
 			@Override
 			protected List<JobProperty<? super InheritanceProject>> castToDestinationType(Object o) {
 				return castToList(o);

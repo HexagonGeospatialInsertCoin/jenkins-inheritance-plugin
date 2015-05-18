@@ -30,10 +30,17 @@ helpRoot = "/plugin/project-inheritance/help/ProjectReference"
 include(AbstractProjectReference, "config")
 
 f.advanced(title: "Expand prioities", align: "left") {
+	
 	f.entry(
 			field: "parameterPriority",
 			title: _("Parameter Order"),
 			help: helpRoot + "/ParameterOrder.html") {
+		ct.range(default: "0", minValue: "-10", step: "1", maxValue: "10")
+	}
+	f.entry(
+			field: "propertiesPriority",
+			title: _("Property Order"),
+			help: helpRoot + "/PropertyOrder.html") {
 		ct.range(default: "0", minValue: "-10", step: "1", maxValue: "10")
 	}
 	f.entry(

@@ -77,6 +77,11 @@ f.advanced(align: "left") {
 		}
 		f.nested() {
 				f.entry(
+						title: _("Property Order"),
+						) {
+					f.booleanRadio(field: "propertiesIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+				}
+				f.entry(
 					
 					title: _("Parameter Order")
 					){

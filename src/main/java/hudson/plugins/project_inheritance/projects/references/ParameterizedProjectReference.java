@@ -54,16 +54,18 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 		public final boolean builderIsOverriding;
 		public final boolean publisherIsOverriding;
 		public final boolean miscIsOverriding;
+		public final boolean propertiesIsOverriding;
 		
 		public OverridingMap(boolean... overriding) {
-			if (overriding.length != 5) {
-				throw new IllegalArgumentException("OverridingMap expected 5 values");
+			if (overriding.length != 6) {
+				throw new IllegalArgumentException("OverridingMap expected 6 values");
 			}
 			parameterIsOverriding = overriding[0];
 			buildWrapperIsOverriding = overriding[1];
 			builderIsOverriding = overriding[2];
 			publisherIsOverriding = overriding[3];
 			miscIsOverriding = overriding[4];
+			propertiesIsOverriding  = overriding[5];
 		}
 	}
 	
@@ -73,7 +75,7 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 	@DataBoundConstructor
 	public ParameterizedProjectReference(String name, String variance, String assignedLabelString,
 			List<ParameterDefinition> parameters, boolean parameterIsOverriding, boolean buildWrapperIsOverriding,
-			boolean builderIsOverriding, boolean publisherIsOverriding, boolean miscIsOverriding) {
+			boolean builderIsOverriding, boolean publisherIsOverriding, boolean miscIsOverriding, boolean propertiesIsOverriding) {
 		super(name);
 		InheritanceProject project = this.getProject();
 		if (project != null && parameters != null) {
@@ -95,8 +97,8 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 		
 		this.variance = variance;
 		this.assignedLabelString = assignedLabelString;
-		this.overridingMap  = new OverridingMap(parameterIsOverriding,  buildWrapperIsOverriding,
-				 builderIsOverriding,  publisherIsOverriding,  miscIsOverriding);
+		this.overridingMap  = new OverridingMap(parameterIsOverriding,  buildWrapperIsOverriding,builderIsOverriding, 
+				  publisherIsOverriding,  miscIsOverriding, propertiesIsOverriding);
 	}
 	
 	
@@ -148,6 +150,9 @@ public class ParameterizedProjectReference extends SimpleProjectReference {
 	
 	public boolean getMiscIsOverriding() {
 		return this.overridingMap.miscIsOverriding;
+	}
+	public boolean getPropertiesIsOverriding() {
+		return this.overridingMap.propertiesIsOverriding;
 	}
 		
 	

@@ -41,16 +41,18 @@ public class ProjectReference extends SimpleProjectReference {
 		public final int builderPriority;
 		public final int publisherPriority;
 		public final int miscPriority;
+		public final int propertiesPriority;
 		
 		public PrioMap(int... prio) {
-			if (prio.length != 5) {
-				throw new IllegalArgumentException("PrioMap expected 5 values");
+			if (prio.length != 6) {
+				throw new IllegalArgumentException("PrioMap expected 6 values");
 			}
 			parameterPriority = prio[0];
 			buildWrapperPriority = prio[1];
 			builderPriority = prio[2];
 			publisherPriority = prio[3];
 			miscPriority = prio[4];
+			propertiesPriority = prio[5];
 		}
 	}
 	
@@ -58,12 +60,12 @@ public class ProjectReference extends SimpleProjectReference {
 	
 	@DataBoundConstructor
 	public ProjectReference(String name,
-			int parameterPriority, int buildWrapperPriority,
-			int builderPriority, int publisherPriority, int miscPriority) {
+			int parameterPriority, int buildWrapperPriority, int builderPriority,
+			int publisherPriority, int miscPriority, int propertiesPriority) {
 		super(name);
 		this.prioMap = new PrioMap(
-				parameterPriority, buildWrapperPriority,
-				builderPriority, publisherPriority, miscPriority
+				parameterPriority, buildWrapperPriority,builderPriority,
+				 publisherPriority, miscPriority, propertiesPriority
 		);
 	}
 	
@@ -71,7 +73,7 @@ public class ProjectReference extends SimpleProjectReference {
 	 * Usability constructor, in case all priorities are identical
 	 */
 	public ProjectReference(String name, int priority) {
-		this(name, priority, priority, priority, priority, priority);
+		this(name, priority, priority, priority, priority, priority, priority);
 	}
 	
 	
@@ -96,14 +98,16 @@ public class ProjectReference extends SimpleProjectReference {
 	public int getMiscPriority() {
 		return this.prioMap.miscPriority;
 	}
-	
+	public int getPropertiesPriority(){
+		return this.prioMap.propertiesPriority;
+	}
 	
 	
 	// === COMPARATOR IMPLEMENTATIONS ===
 	
 	public static class PrioComparator implements Comparator<AbstractProjectReference>  {
 		public static enum SELECTOR {
-			PARAMETER, BUILD_WRAPPER, BUILDER, PUBLISHER, MISC
+			PARAMETER, BUILD_WRAPPER, BUILDER, PUBLISHER, MISC, PROPERTIES
 		}
 		private final SELECTOR sel;
 		
@@ -131,6 +135,8 @@ public class ProjectReference extends SimpleProjectReference {
 					return pRef.getPublisherPriority();
 				case MISC:
 					return pRef.getMiscPriority();
+				case PROPERTIES: 
+					return pRef.getPropertiesPriority();
 				default:
 					throw new IllegalArgumentException(
 							"Invalid priority selector"
@@ -154,8 +160,10 @@ public class ProjectReference extends SimpleProjectReference {
 					return pRef.getPublisherPriority();
 				case MISC:
 					return pRef.getMiscPriority();
+				case PROPERTIES:
+					return pRef.getPropertiesPriority();
 				default:
-					//TODO: Log this error
+					
 					return 0;
 			}
 		}
@@ -191,6 +199,9 @@ public class ProjectReference extends SimpleProjectReference {
 				return false;
 			}
 			if (proj1.getBuilderPriority() != proj2.getBuilderPriority()){
+				return false;
+			}
+			if (proj1.getPropertiesPriority() != proj2.getPropertiesPriority()){
 				return false;
 			}
 			if (!proj1.getName().equals(proj2.getName())){
@@ -256,6 +267,11 @@ public class ProjectReference extends SimpleProjectReference {
 		public FormValidation doCheckMiscPriority(
 				@QueryParameter String miscPriority) {
 			return isNumber(miscPriority, PRIO_ERROR);
+		}
+		
+		public FormValidation doCheckPropertiesPriority(
+				@QueryParameter String propertiesPriority) {
+			return isNumber(propertiesPriority, PRIO_ERROR);
 		}
 	}
 }
