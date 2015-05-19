@@ -705,25 +705,26 @@ public class ProjectCreationEngine extends ManagementLink implements Saveable, D
 				updated |= ip.updateParentReference(
 						new ProjectReference(parentList.get(0).getName(),
 								this.overridingMap.parameterIsOverriding?-2:-1, 
-								this.overridingMap.buildWrapperIsOverriding?1:2,
-								this.overridingMap.builderIsOverriding?1:2, 
-								this.overridingMap.publisherIsOverriding?1:2, 
-								this.overridingMap.miscIsOverriding?1:2,
-								this.overridingMap.propertiesIsOverriding?1:2
+								this.overridingMap.buildWrapperIsOverriding?-2:-1,
+								this.overridingMap.builderIsOverriding?-2:-1, 
+								this.overridingMap.publisherIsOverriding?-2:-1, 
+								this.overridingMap.miscIsOverriding?-2:-1,
+								this.overridingMap.propertiesIsOverriding?-2:-1
 						)
 						
 				);
 				updated |= ip.updateParentReference(
 						new ProjectReference(parentList.get(1).getName(),
 								this.overridingMap.parameterIsOverriding?-1:-2, 
-								this.overridingMap.buildWrapperIsOverriding?2:1,
-								this.overridingMap.builderIsOverriding?2:1, 
-								this.overridingMap.publisherIsOverriding?2:1, 
-								this.overridingMap.miscIsOverriding?2:1,
-								this.overridingMap.propertiesIsOverriding?2:1
+								this.overridingMap.buildWrapperIsOverriding?-1:-2,
+								this.overridingMap.builderIsOverriding?-1:-2, 
+								this.overridingMap.publisherIsOverriding?-1:-2, 
+								this.overridingMap.miscIsOverriding?-1:-2,
+								this.overridingMap.propertiesIsOverriding?-1:-2
 						)
 						
 				);
+				
 			}else if (parentList.size()==1){//i am not sure how this would be possible, but interface allows for it. Remove it eventually. 
 				updated |= ip.updateParentReference(new ProjectReference(parentList.get(0).getName(),-1));
 			}

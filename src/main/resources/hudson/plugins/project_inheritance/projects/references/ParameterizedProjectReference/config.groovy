@@ -76,37 +76,37 @@ f.advanced(align: "left") {
 			)
 		}
 		f.nested() {
+				
+				f.entry(	
+					title: _("Parameter Order")
+					){
+					f.booleanRadio(field: "parameterIsOverriding",true: _("This project first"), false:_("Referenced project first"))
+
+				}
 				f.entry(
 						title: _("Property Order"),
 						) {
-					f.booleanRadio(field: "propertiesIsOverriding",true: _("This project last"), false:_("Referenced project last"))
-				}
-				f.entry(
-					
-					title: _("Parameter Order")
-					){
-					f.booleanRadio(field: "parameterIsOverriding",true: _("This project last"), false:_("Referenced project last"))
-
+					f.booleanRadio(field: "propertiesIsOverriding",true: _("This project first"), false:_("Referenced project first"))
 				}
 				f.entry(
 						title: _("Pre-Build Step Order"),
 						) {
-					f.booleanRadio(field: "buildWrapperIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+					f.booleanRadio(field: "buildWrapperIsOverriding",true: _("This project first"), false:_("Referenced project first"))
 				}
 				f.entry(
 						title: _("Build Step Order"),
 						) {
-					f.booleanRadio(field: "builderIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+					f.booleanRadio(field: "builderIsOverriding",true: _("This project first"), false:_("Referenced project first"))
 				}
 				f.entry(
 						title: _("Post-Build Step Order"),
 						) {
-					f.booleanRadio(field: "publisherIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+					f.booleanRadio(field: "publisherIsOverriding",true: _("This project first"), false:_("Referenced project first"))
 				}
 				f.entry(
 						title: _("Misc. Property Order"),
 						) {
-					f.booleanRadio(field: "miscIsOverriding",true: _("This project last"), false:_("Referenced project last"))
+					f.booleanRadio(field: "miscIsOverriding",true: _("This project first"), false:_("Referenced project first"))
 				}
 		}
 		f.nested() {

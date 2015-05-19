@@ -3101,9 +3101,10 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 		//to access the correct compatibility setting in the correct parent
 		final InheritanceProject rootProject = this;
 		
-		InheritanceGovernor<List<JobProperty<? super InheritanceProject>>> gov =
-				new InheritanceGovernor<List<JobProperty<? super InheritanceProject>>>(
-						"properties", SELECTOR.PROPERTIES, this) {
+		class PropertiesInheritanceGovernor extends InheritanceGovernor<List<JobProperty<? super InheritanceProject>>>{
+			PropertiesInheritanceGovernor(String field, SELECTOR order, InheritanceProject caller) {
+				super(field, order, caller);
+			}
 			@Override
 			protected List<JobProperty<? super InheritanceProject>> castToDestinationType(Object o) {
 				return castToList(o);
@@ -3132,8 +3133,25 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 				);
 			}
 		};
-		
-		return gov.retrieveFullyDerivedField(this, mode);
+		PropertiesInheritanceGovernor govProperties = new PropertiesInheritanceGovernor("properties", SELECTOR.PROPERTIES, this);
+		//We need to remove parameter definition property 
+		LinkedList<JobProperty<? super InheritanceProject>> allProperties = new LinkedList<JobProperty<? super InheritanceProject>>();
+		List<JobProperty<? super InheritanceProject>> allPropertiesProperties = govProperties.retrieveFullyDerivedField(this, mode);
+		for(JobProperty<? super InheritanceProject> prop:allPropertiesProperties){
+			if (!(prop instanceof InheritanceParametersDefinitionProperty) && 
+				!(prop instanceof ParametersDefinitionProperty)	){
+				allProperties.add(prop);
+			}
+		}
+		PropertiesInheritanceGovernor govParameters = new PropertiesInheritanceGovernor("properties", SELECTOR.PARAMETER, this);
+		List<JobProperty<? super InheritanceProject>> allPropertiesParameters = govParameters.retrieveFullyDerivedField(this, mode);
+		for(JobProperty<? super InheritanceProject> prop:allPropertiesParameters){
+			if (prop instanceof InheritanceParametersDefinitionProperty  || 
+				prop instanceof ParametersDefinitionProperty	){
+				allProperties.add(prop);
+			}
+		}
+		return allProperties;
 	}
 	
 	/**
