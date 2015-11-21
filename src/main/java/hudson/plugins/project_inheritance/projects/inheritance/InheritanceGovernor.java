@@ -66,7 +66,12 @@ public abstract class InheritanceGovernor<T> {
 	public final String fieldName;
 	public final SELECTOR orderMode;
 	public final InheritanceProject caller;
-	
+	/** 
+	 * Decides if transient projects should contribute a value to a final one.
+	 * For example when project has been created from mating it should only contribute properties that are configured on compound creation page. 
+	 * i.e. parameters, label, etc.
+	 */
+	public final boolean transientContributesValue;
 	/**
 	 * {@link Saveable} that doesn't save anything.
 	 * @since 1.301.
@@ -78,11 +83,14 @@ public abstract class InheritanceGovernor<T> {
 	
 	
 	public InheritanceGovernor(String field, SELECTOR order, InheritanceProject caller) {
+		this(field, order, caller, true);
+	}
+	public InheritanceGovernor(String field, SELECTOR order, InheritanceProject caller, boolean transientContributesValue) {
 		this.fieldName = field;
 		this.orderMode = order;
 		this.caller = caller;
+		this.transientContributesValue = transientContributesValue;
 	}
-	
 	/**
 	 * This function should take an arbitrary Object o and cast it directly
 	 * to T if possible; or return null if o is incompatible.
@@ -229,7 +237,9 @@ public abstract class InheritanceGovernor<T> {
 		}
 		
 		all.addAll(0, priors);
-		all.add(root);
+		if (transientContributesValue || !root.getIsTransient()){
+			all.add(root);
+		}
 		all.addAll(latters);
 		
 		return all;

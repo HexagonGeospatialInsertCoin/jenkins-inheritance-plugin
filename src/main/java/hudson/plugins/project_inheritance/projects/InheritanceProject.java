@@ -3097,6 +3097,11 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 	}
 	
 	public List<JobProperty<? super InheritanceProject>> getAllProperties(IMode mode) {
+		
+		Object cachedProperties = onInheritChangeBuffer.get(this,  "getAllProperties"+mode.toString());
+		if (cachedProperties !=null){
+			return (List<JobProperty<? super InheritanceProject>>) cachedProperties;
+		}
 		//Fetching the variance of the current project; it is necessary
 		//to access the correct compatibility setting in the correct parent
 		final InheritanceProject rootProject = this;
@@ -3151,6 +3156,7 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 				allProperties.add(prop);
 			}
 		}
+		onInheritChangeBuffer.set(this,  "getAllProperties"+mode.toString(), allProperties);
 		return allProperties;
 	}
 	
@@ -3531,7 +3537,7 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 	public boolean blockBuildWhenDownstreamBuilding() {
 		InheritanceGovernor<Boolean> gov = 
 				new InheritanceGovernor<Boolean>(
-						"blockBuildWhenDownstreamBuilding", SELECTOR.MISC, this) {
+						"blockBuildWhenDownstreamBuilding", SELECTOR.MISC, this, false) {
 			@Override
 			protected Boolean castToDestinationType(
 					Object o) {
@@ -3557,7 +3563,7 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 	public boolean blockBuildWhenUpstreamBuilding() {
 		InheritanceGovernor<Boolean> gov = 
 				new InheritanceGovernor<Boolean>(
-						"blockBuildWhenUpstreamBuilding", SELECTOR.MISC, this) {
+						"blockBuildWhenUpstreamBuilding", SELECTOR.MISC, this, false) {
 			@Override
 			protected Boolean castToDestinationType(
 					Object o) {
