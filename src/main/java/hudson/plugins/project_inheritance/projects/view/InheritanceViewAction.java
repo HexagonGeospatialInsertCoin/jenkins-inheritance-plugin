@@ -384,13 +384,15 @@ public class InheritanceViewAction implements Action, Describable<InheritanceVie
 		List<ParameterDefinition> parameters = project.getParameters(
 				IMode.INHERIT_FORCED
 		);
-		for (ParameterDefinition pDef : parameters) {
-			ParameterValue pVal = pDef.getDefaultParameterValue();
-			if (pVal instanceof StringParameterValue) {
-				result.put(
-						pDef.getName(),
-						((StringParameterValue) pVal).value
-				);
+		if (parameters!=null){
+			for (ParameterDefinition pDef : parameters) {
+				ParameterValue pVal = pDef.getDefaultParameterValue();
+				if (pVal instanceof StringParameterValue) {
+					result.put(
+							pDef.getName(),
+							((StringParameterValue) pVal).value
+					);
+				}
 			}
 		}
 		//We do not resolve parameters; as they are most likely not complete anyway

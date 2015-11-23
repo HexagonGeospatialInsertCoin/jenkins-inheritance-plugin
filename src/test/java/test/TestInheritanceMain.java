@@ -99,15 +99,21 @@ public class TestInheritanceMain extends HudsonTestCase {
 				this.project.addProperty(pdp);
 			} else {
 				List<ParameterDefinition> defs = pdp.getParameterDefinitions();
-				Iterator<ParameterDefinition> iter = defs.iterator();
-				//Remove definitions that are in the way
-				while (iter.hasNext()) {
-					ParameterDefinition param = iter.next();
-					if (param.getName().equals(pd.getName())) {
-						iter.remove();
+				if (defs == null){
+					this.project.removeProperty(pdp);
+					pdp = new ParametersDefinitionProperty(pd);
+					this.project.addProperty(pdp);
+				}else{
+					Iterator<ParameterDefinition> iter = defs.iterator();
+					//Remove definitions that are in the way
+					while (iter.hasNext()) {
+						ParameterDefinition param = iter.next();
+						if (param.getName().equals(pd.getName())) {
+							iter.remove();
+						}
 					}
+					defs.add(pd);
 				}
-				defs.add(pd);
 			}
 			this.project.removeProperty(ParametersDefinitionProperty.class);
 			this.project.addProperty(pdp);

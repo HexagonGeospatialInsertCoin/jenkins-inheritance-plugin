@@ -208,8 +208,10 @@ public class InheritanceParametersDefinitionProperty extends
 					}
 				}
 		);
-		for (ParameterDefinition pd : in) {
-			tree.add(pd.copyWithDefaultValue(pd.getDefaultParameterValue()));
+		if (in!=null){
+			for (ParameterDefinition pd : in) {
+				tree.add(pd.copyWithDefaultValue(pd.getDefaultParameterValue()));
+			}
 		}
 		return new LinkedList<ParameterDefinition>(tree);
 	}
@@ -234,8 +236,11 @@ public class InheritanceParametersDefinitionProperty extends
 				new HashMap<String, ParameterDefinition>();
 		for (int i = pdps.length-1; i >= 0; i--) {
 			ParametersDefinitionProperty pdp = pdps[i];
-			for (ParameterDefinition pd : pdp.getParameterDefinitions()) {
-				unifyMap.put(pd.getName(), pd);
+			List<ParameterDefinition> pds = pdp.getParameterDefinitions();
+			if (pds!=null){
+				for (ParameterDefinition pd : pds) {
+					unifyMap.put(pd.getName(), pd);
+				}
 			}
 		}
 		List<ParameterDefinition> unifyList =
@@ -558,9 +563,11 @@ public class InheritanceParametersDefinitionProperty extends
 					IMode.LOCAL_ONLY
 			);
 			if (parPDP == null) { continue; }
-			
-			for (ParameterDefinition pd : parPDP.getParameterDefinitions()) {
-				lst.add(new ScopeEntry(par.getFullName(), pd));
+			List<ParameterDefinition> pds = parPDP.getParameterDefinitions();
+			if (pds!=null){
+				for (ParameterDefinition pd : pds) {
+					lst.add(new ScopeEntry(par.getFullName(), pd));
+				}
 			}
 		}
 		

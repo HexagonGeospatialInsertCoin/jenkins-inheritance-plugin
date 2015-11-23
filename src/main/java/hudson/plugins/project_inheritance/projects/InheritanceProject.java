@@ -1165,20 +1165,21 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 				new LinkedList<ParameterValue>();
 		
 		//Then, we fetch the expansion of these based on their defaults
-		for (ParameterDefinition pd : defLst) {
-			ParameterValue pv = null;
-			if (pd instanceof InheritableStringParameterDefinition) {
-				InheritableStringParameterDefinition ispd =
-						(InheritableStringParameterDefinition) pd;
-				pv = ispd.createValue(ispd.getDefaultValue());
-			} else {
-				pv = pd.getDefaultParameterValue();
-			}
-			if (pv != null) {
-				valLst.add(pv);
+		if (defLst!=null){
+			for (ParameterDefinition pd : defLst) {
+				ParameterValue pv = null;
+				if (pd instanceof InheritableStringParameterDefinition) {
+					InheritableStringParameterDefinition ispd =
+							(InheritableStringParameterDefinition) pd;
+					pv = ispd.createValue(ispd.getDefaultValue());
+				} else {
+					pv = pd.getDefaultParameterValue();
+				}
+				if (pv != null) {
+					valLst.add(pv);
+				}
 			}
 		}
-		
 		String str = Jenkins.XSTREAM2.toXML(valLst);
 		//onInheritChangeBuffer.set(this, "doGetParamExpansionsAsXML", str);
 		return str;
@@ -1209,10 +1210,12 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 				new LinkedList<ParameterValue>();
 		
 		//Then, we fetch the expansion of these based on their defaults
-		for (ParameterDefinition pd : defLst) {
-			ParameterValue pv = pd.getDefaultParameterValue();
-			if (pv != null) {
-				valLst.add(pv);
+		if (defLst!=null){
+			for (ParameterDefinition pd : defLst) {
+				ParameterValue pv = pd.getDefaultParameterValue();
+				if (pv != null) {
+					valLst.add(pv);
+				}
 			}
 		}
 		
@@ -4317,8 +4320,11 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 			String ownerName = (pdp.getOwner() != null)
 					? pdp.getOwner().getName() : "";
 			fullScope = new LinkedList<ScopeEntry>();
-			for (ParameterDefinition pd : pdp.getParameterDefinitions()) {
-				fullScope.add(new ScopeEntry(ownerName, pd));
+			List<ParameterDefinition> pds = pdp.getParameterDefinitions();
+			if (pds!=null){
+				for (ParameterDefinition pd : pds) {
+					fullScope.add(new ScopeEntry(ownerName, pd));
+				}
 			}
 		}
 		
