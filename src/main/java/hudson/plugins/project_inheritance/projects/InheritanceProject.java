@@ -3098,10 +3098,20 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 	public List<JobProperty<? super InheritanceProject>> getAllProperties() {
 		return this.getAllProperties(IMode.AUTO);
 	}
-	
+	private static String getCacheString(InheritanceProject root, IMode mode, String prefix){
+		if (mode == IMode.AUTO){
+			if(InheritanceGovernor.inheritanceLookupRequired(root)){
+				return prefix + mode.toString() + "true";
+			}else{
+				return prefix + mode.toString() + "false";
+			}
+		}else{
+			return prefix +mode.toString();
+		}
+	}
 	public List<JobProperty<? super InheritanceProject>> getAllProperties(IMode mode) {
-		
-		Object cachedProperties = onInheritChangeBuffer.get(this,  "getAllProperties"+mode.toString());
+		String cacheString = getCacheString(this, mode, "getAllProperties");
+		Object cachedProperties = onInheritChangeBuffer.get(this, cacheString);
 		if (cachedProperties !=null){
 			return (List<JobProperty<? super InheritanceProject>>) cachedProperties;
 		}
@@ -3159,7 +3169,7 @@ public class InheritanceProject	extends Project<InheritanceProject, InheritanceB
 				allProperties.add(prop);
 			}
 		}
-		onInheritChangeBuffer.set(this,  "getAllProperties"+mode.toString(), allProperties);
+		onInheritChangeBuffer.set(this,  cacheString, allProperties);
 		return allProperties;
 	}
 	
